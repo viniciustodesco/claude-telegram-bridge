@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm start)",
+      "Bash(timeout /t 3 /nobreak)",
+      "Bash(nul)",
+      "Bash(ping:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(npm install:*)",
+      "Bash(where claude)",
+      "Bash(claude)",
+      "Bash(npm run start:improved:*)",
+      "Bash(npm run start:session:*)",
+      "Bash(node --check:*)",
+      "Bash(claude --print:*)",
+      "Bash(timeout /t 15 /nobreak)",
+      "Bash(del index-improved.js index-session.js telegram-claude-console.js telegram-claude-final.js start-bot.js stop-bot.js status-bot.js logs-bot.js 2)",
+      "Bash(del /Q index-improved.js index-session.js telegram-claude-console.js telegram-claude-final.js start-bot.js stop-bot.js status-bot.js logs-bot.js)",
+      "Bash(echo:*)",
+      "Bash(C:Usersvinicius.todescoAppDataRoamingnpmclaude.cmd --print --verbose --input-format stream-json --output-format stream-json --dangerously-skip-permissions)",
+      "WebSearch",
+      "Bash(if not exist .gitignore echo temp/)",
+      "Bash(.gitignore)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

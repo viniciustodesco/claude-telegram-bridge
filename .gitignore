@@ -1,0 +1,30 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente
+.env
+
+# Dados e histórico
+data/
+temp/
+
+# Arquivos de teste
+test-stream.js
+
+# Logs
+*.log
+npm-debug.log*
+bot.log
+
+# Arquivos de processo
+bot.pid
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
