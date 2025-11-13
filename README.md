@@ -27,6 +27,12 @@ Controle completo do Claude Code via Telegram com suporte a **texto**, **imagens
 - ✅ **Aprovação de permissões** - Controle total sobre ações do Claude
 - 🚫 **Auto-skip opcional** - Modo `--dangerously-skip-permissions`
 
+### 👥 **Suporte a Grupos**
+- 🗣️ **Sessão compartilhada** - Use Claude Code em grupos do Telegram
+- 👥 **Colaboração** - Todos os membros podem interagir com Claude
+- 📝 **Histórico único** - Uma conversa compartilhada por grupo
+- 📖 **[Ver guia completo](GRUPOS.md)** - Instruções detalhadas de configuração
+
 ---
 
 ## 🚀 Instalação
@@ -62,6 +68,8 @@ TELEGRAM_BOT_TOKEN=seu_token_aqui
 # ============================================
 
 # ID do chat autorizado (seu Chat ID do Telegram)
+# Pode ser um único ID ou múltiplos (chat privado + grupos) separados por vírgula
+# Exemplo: AUTHORIZED_CHAT_ID=123456789,-987654321
 AUTHORIZED_CHAT_ID=seu_chat_id_aqui
 
 # Diretório de trabalho do Claude Code

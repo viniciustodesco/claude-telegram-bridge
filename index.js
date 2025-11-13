@@ -11,7 +11,9 @@ dotenv.config();
 // ============================
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const WORKING_DIR = process.env.WORKING_DIR || process.cwd();
-const AUTHORIZED_CHAT_ID = process.env.AUTHORIZED_CHAT_ID;
+const AUTHORIZED_CHAT_IDS = process.env.AUTHORIZED_CHAT_ID
+  ? process.env.AUTHORIZED_CHAT_ID.split(',').map(id => id.trim())
+  : [];
 const CLAUDE_CODE_PATH = process.env.CLAUDE_CODE_PATH || 'claude';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -520,17 +522,20 @@ function sendToClaudeSession(chatId, message) {
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
+  const chatType = msg.chat.type; // 'private', 'group', 'supergroup'
+  const isGroup = chatType === 'group' || chatType === 'supergroup';
 
   // Verificar autorização
-  if (AUTHORIZED_CHAT_ID && chatId.toString() !== AUTHORIZED_CHAT_ID) {
+  if (AUTHORIZED_CHAT_IDS.length > 0 && !AUTHORIZED_CHAT_IDS.includes(chatId.toString())) {
     await bot.sendMessage(chatId, '❌ Acesso não autorizado.');
-    console.log(`⚠️ Acesso negado: ${chatId}`);
+    console.log(`⚠️ Acesso negado: ${chatId} (${chatType})`);
     return;
   }
 
-  // Log do chat ID
-  if (!AUTHORIZED_CHAT_ID) {
-    console.log(`📱 Seu Chat ID: ${chatId} (configure no .env)`);
+  // Log do chat ID (útil para descobrir IDs de grupos)
+  if (AUTHORIZED_CHAT_IDS.length === 0) {
+    const chatName = msg.chat.title || msg.chat.username || msg.chat.first_name || 'Desconhecido';
+    console.log(`📱 Chat ID: ${chatId} | Tipo: ${chatType} | Nome: ${chatName} (configure no .env)`);
   }
 
   // ============================
@@ -565,8 +570,12 @@ bot.on('message', async (msg) => {
     // Criar nova sessão
     const session = createClaudeSession(chatId);
 
+    const chatIcon = isGroup ? '👥' : '💬';
+    const chatTypeText = isGroup ? 'grupo (sessão compartilhada)' : 'chat privado';
+
     await bot.sendMessage(chatId,
       `🚀 *Sessão Claude Code Stream Iniciada!*\n\n` +
+      `${chatIcon} *Tipo:* ${chatTypeText}\n` +
       `✨ *Modo Stream JSON Ativo*\n` +
       `• Mensagens em tempo real via stream\n` +
       `• Atualizações parciais enquanto Claude pensa\n` +
@@ -576,6 +585,7 @@ bot.on('message', async (msg) => {
       `📝 Session ID: \`${session.sessionId}\`\n` +
       `📁 Diretório: \`${WORKING_DIR}\`\n` +
       (openai ? `🎙️ Whisper: ✅ Ativo\n` : `🎙️ Whisper: ⚠️ Configure OPENAI_API_KEY\n`) +
+      (isGroup ? `\n⚠️ *Grupo:* Todos veem e compartilham a mesma conversa\n` : '') +
       `\n*Comandos:*\n` +
       `/start - Nova sessão\n` +
       `/stop - Encerrar sessão\n` +
@@ -678,5 +688,10 @@ console.log('║      Streaming JSON em Tempo Real         ║');
 console.log('╚════════════════════════════════════════════╝');
 console.log(`📁 Diretório: ${WORKING_DIR}`);
 console.log(`🤖 Claude CLI: ${CLAUDE_CODE_PATH}`);
-console.log(`🔐 Autorização: ${AUTHORIZED_CHAT_ID ? 'Habilitada (Chat ' + AUTHORIZED_CHAT_ID + ')' : 'Desabilitada'}`);
+if (AUTHORIZED_CHAT_IDS.length > 0) {
+  console.log(`🔐 Autorização: Habilitada (${AUTHORIZED_CHAT_IDS.length} chat(s) autorizado(s))`);
+  AUTHORIZED_CHAT_IDS.forEach(id => console.log(`   ├─ Chat ID: ${id}`));
+} else {
+  console.log(`🔐 Autorização: Desabilitada (qualquer chat pode usar)`);
+}
 console.log('✅ Bot iniciado - Aguardando comandos...\n');
