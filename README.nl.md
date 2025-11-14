@@ -178,6 +178,14 @@ De wijziging is onmiddellijk en wordt bevestigd op het scherm. Alle bot berichte
 - Verwerkingsfeedback
 - Audio transcriptie (in de geselecteerde taal)
 
+**Persistência / Persistence / Persistentie:**
+- Suas preferências de idioma são salvas automaticamente
+- Your language preferences are saved automatically
+- Je taalvoorkeuren worden automatisch opgeslagen
+- Armazenadas em `data/language-preferences.json`
+- Stored in `data/language-preferences.json`
+- Opgeslagen in `data/language-preferences.json`
+
 ### 💬 Tekstinteractie
 
 Typ gewoon je bericht normaal:

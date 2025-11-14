@@ -178,6 +178,14 @@ The change is immediate and confirmed on screen. All bot messages will be displa
 - Processing feedback
 - Audio transcription (in the selected language)
 
+**Persistência / Persistence / Persistentie:**
+- Suas preferências de idioma são salvas automaticamente
+- Your language preferences are saved automatically
+- Je taalvoorkeuren worden automatisch opgeslagen
+- Armazenadas em `data/language-preferences.json`
+- Stored in `data/language-preferences.json`
+- Opgeslagen in `data/language-preferences.json`
+
 ### 💬 Text Interaction
 
 Simply type your message normally:

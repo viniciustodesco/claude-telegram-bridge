@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import OpenAI from 'openai';
-import { t, setLanguage, getLanguage } from './lib/i18n.js';
+import { t, setLanguage, getLanguage, getSupportedLanguages, getDefaultLanguage } from './lib/i18n.js';
 dotenv.config();
 
 // ============================
@@ -96,7 +96,9 @@ function createClaudeSession(chatId) {
 
   // Iniciar Claude em modo stream-json
   // No Windows, usar .cmd explicitamente
-  const claudeCmd = CLAUDE_CODE_PATH.endsWith('.cmd') ? CLAUDE_CODE_PATH : CLAUDE_CODE_PATH + '.cmd';
+  const claudeCmd = process.platform === 'win32' && !CLAUDE_CODE_PATH.endsWith('.cmd')
+    ? CLAUDE_CODE_PATH + '.cmd'
+    : CLAUDE_CODE_PATH;
 
   const claudeProcess = spawn(claudeCmd, [
     '--print',
@@ -413,7 +415,7 @@ async function handleVoiceMessage(chatId, voice) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
 
-    tempFile = path.join(tempDir, `voice_${Date.now()}.ogg`);
+    tempFile = path.join(tempDir, `voice_${Date.now()}_${Math.random().toString(36).substring(7)}.ogg`);
     fs.writeFileSync(tempFile, Buffer.from(buffer));
 
     console.log(`🎤 [${chatId}] Audio saved (${(buffer.byteLength / 1024).toFixed(1)} KB)`);
@@ -530,6 +532,31 @@ bot.on('message', async (msg) => {
   const text = msg.text;
   const chatType = msg.chat.type; // 'private', 'group', 'supergroup'
   const isGroup = chatType === 'group' || chatType === 'supergroup';
+
+  // Auto-detect language on first interaction (if not already set)
+  const currentLang = getLanguage(chatId);
+  const defaultLang = getDefaultLanguage();
+  if (currentLang === defaultLang) {
+    const userLangCode = msg.from?.language_code; // ISO 639-1 code from Telegram
+    if (userLangCode) {
+      // Map Telegram language codes to our supported languages
+      const langMap = {
+        'en': 'en',
+        'pt': 'pt',
+        'pt-BR': 'pt',
+        'pt-PT': 'pt',
+        'nl': 'nl',
+        'nl-BE': 'nl',
+        'nl-NL': 'nl'
+      };
+
+      const detectedLang = langMap[userLangCode] || langMap[userLangCode?.split('-')[0]];
+      if (detectedLang && getSupportedLanguages().includes(detectedLang)) {
+        setLanguage(chatId, detectedLang);
+        console.log(`🌍 Auto-detected language: ${detectedLang} for chat ${chatId}`);
+      }
+    }
+  }
 
   // Verificar autorização
   if (AUTHORIZED_CHAT_IDS.length > 0 && !AUTHORIZED_CHAT_IDS.includes(chatId.toString())) {

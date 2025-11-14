@@ -178,6 +178,14 @@ A escolha é imediata e confirmada na tela. Todas as mensagens do bot serão exi
 - Feedback de processamento
 - Transcrição de áudio (no idioma selecionado)
 
+**Persistência / Persistence / Persistentie:**
+- Suas preferências de idioma são salvas automaticamente
+- Your language preferences are saved automatically
+- Je taalvoorkeuren worden automatisch opgeslagen
+- Armazenadas em `data/language-preferences.json`
+- Stored in `data/language-preferences.json`
+- Opgeslagen in `data/language-preferences.json`
+
 ### 💬 Interação por Texto
 
 Simplesmente digite sua mensagem normalmente:
