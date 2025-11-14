@@ -4,6 +4,7 @@ import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import OpenAI from 'openai';
+import { t, setLanguage, getLanguage } from './lib/i18n.js';
 dotenv.config();
 
 // ============================
@@ -18,7 +19,7 @@ const CLAUDE_CODE_PATH = process.env.CLAUDE_CODE_PATH || 'claude';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 if (!TELEGRAM_TOKEN) {
-  console.error('❌ Erro: Configure TELEGRAM_BOT_TOKEN no arquivo .env');
+  console.error(t(null, 'errors.noToken'));
   process.exit(1);
 }
 
@@ -28,9 +29,9 @@ const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 let openai = null;
 if (OPENAI_API_KEY && OPENAI_API_KEY !== 'sua_api_key_aqui') {
   openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-  console.log('✅ OpenAI Whisper habilitado para transcrição de áudio');
+  console.log('✅ OpenAI Whisper enabled for audio transcription');
 } else {
-  console.log('⚠️ OpenAI API key não configurada - áudio será salvo sem transcrição');
+  console.log('⚠️ OpenAI API key not configured - audio will be saved without transcription');
 }
 
 // Map de sessões: chatId -> { process, sessionId, buffer }
@@ -79,7 +80,7 @@ async function sendMessage(chatId, text, options = {}) {
     try {
       await bot.sendMessage(chatId, prefix + parts[i], isLast ? options : {});
     } catch (error) {
-      console.error('❌ Erro ao enviar mensagem:', error.message);
+      console.error('❌ Error sending message:', error.message);
     }
   }
 }
@@ -89,7 +90,7 @@ async function sendMessage(chatId, text, options = {}) {
 // ============================
 
 function createClaudeSession(chatId) {
-  console.log(`\n🚀 [${chatId}] Criando sessão stream...`);
+  console.log(`\n🚀 [${chatId}] Creating stream session...`);
 
   const sessionId = generateUUID();
 
@@ -137,18 +138,18 @@ function createClaudeSession(chatId) {
   });
 
   claudeProcess.on('error', (error) => {
-    console.error(`❌ [${chatId}] Erro no processo:`, error);
-    bot.sendMessage(chatId, `❌ Erro: ${error.message}`);
+    console.error(`❌ [${chatId}] Process error:`, error);
+    bot.sendMessage(chatId, t(chatId, 'errors.sending', { error: error.message }));
     sessions.delete(chatId);
   });
 
   claudeProcess.on('close', (code) => {
-    console.log(`🔴 [${chatId}] Sessão encerrada (code: ${code})`);
-    bot.sendMessage(chatId, `🔴 Sessão Claude encerrada (código: ${code})`);
+    console.log(`🔴 [${chatId}] Session closed (code: ${code})`);
+    bot.sendMessage(chatId, t(chatId, 'session.closed', { code }));
     sessions.delete(chatId);
   });
 
-  console.log(`✅ [${chatId}] Sessão criada! Session ID: ${sessionId}`);
+  console.log(`✅ [${chatId}] Session created! Session ID: ${sessionId}`);
   return session;
 }
 
@@ -169,7 +170,7 @@ function processStreamBuffer(chatId, session) {
       const event = JSON.parse(line);
       handleStreamEvent(chatId, session, event);
     } catch (error) {
-      console.log(`⚠️ [${chatId}] Linha não-JSON ignorada: ${line.substring(0, 100)}`);
+      console.log(`⚠️ [${chatId}] Non-JSON line ignored: ${line.substring(0, 100)}`);
     }
   }
 }
@@ -190,13 +191,13 @@ function handleStreamEvent(chatId, session, event) {
   switch (event.type) {
     case 'user':
       // Confirmação da mensagem enviada (replay)
-      console.log(`✅ [${chatId}] Mensagem confirmada`);
+      console.log(`✅ [${chatId}] Message confirmed`);
       break;
 
     case 'assistant':
       // Mensagem completa do assistente - NÃO enviar aqui para evitar duplicação
       // As mensagens já foram enviadas via streaming parcial (content_block_delta)
-      console.log(`✅ [${chatId}] Mensagem completa recebida (já enviada via streaming)`);
+      console.log(`✅ [${chatId}] Complete message received (already sent via streaming)`);
       break;
 
     case 'stream_event':
@@ -210,7 +211,7 @@ function handleStreamEvent(chatId, session, event) {
       // Resultado final - apenas log (mensagem já foi enviada via streaming)
       const success = event.subtype === 'success' ? '✅' : '❌';
       const duration = event.duration_ms ? `${Math.round(event.duration_ms / 1000)}s` : 'N/A';
-      console.log(`${success} [${chatId}] Resultado final - Duração: ${duration}`);
+      console.log(`${success} [${chatId}] Final result - Duration: ${duration}`);
       break;
 
     case 'system':
@@ -218,7 +219,7 @@ function handleStreamEvent(chatId, session, event) {
       break;
 
     case 'error':
-      sendMessage(chatId, `❌ Erro: ${event.message || 'Erro desconhecido'}`);
+      sendMessage(chatId, t(chatId, 'errors.sending', { error: event.message || 'Unknown error' }));
       break;
 
     default:
@@ -237,13 +238,13 @@ function handleStreamingSubEvent(chatId, session, subEvent) {
       break;
 
     case 'message_start':
-      console.log(`🎬 [${chatId}] Claude começou a responder`);
+      console.log(`🎬 [${chatId}] Claude started responding`);
       break;
 
     case 'message_stop':
       // Forçar flush da mensagem parcial
       flushPartialMessage(chatId);
-      console.log(`🏁 [${chatId}] Claude terminou de responder`);
+      console.log(`🏁 [${chatId}] Claude finished responding`);
       break;
 
     case 'content_block_start':
@@ -314,11 +315,11 @@ async function handlePhotoMessage(chatId, photo) {
   const session = sessions.get(chatId);
 
   if (!session || !session.active) {
-    await bot.sendMessage(chatId, '⚠️ Nenhuma sessão ativa. Use /start primeiro.');
+    await bot.sendMessage(chatId, t(chatId, 'errors.noSession'));
     return;
   }
 
-  console.log(`📸 [${chatId}] Processando foto...`);
+  console.log(`📸 [${chatId}] Processing photo...`);
   await bot.sendChatAction(chatId, 'typing');
 
   try {
@@ -339,7 +340,7 @@ async function handlePhotoMessage(chatId, photo) {
                       ext === '.gif' ? 'image/gif' :
                       ext === '.webp' ? 'image/webp' : 'image/jpeg';
 
-    console.log(`📸 [${chatId}] Foto baixada (${(buffer.byteLength / 1024).toFixed(1)} KB, ${mediaType})`);
+    console.log(`📸 [${chatId}] Photo downloaded (${(buffer.byteLength / 1024).toFixed(1)} KB, ${mediaType})`);
 
     // Limpar buffer de mensagens pendentes
     if (pendingMessages.has(chatId)) {
@@ -364,7 +365,7 @@ async function handlePhotoMessage(chatId, photo) {
           },
           {
             type: 'text',
-            text: 'O que você vê nesta imagem?'
+            text: t(chatId, 'media.imageQuestion')
           }
         ]
       },
@@ -373,11 +374,11 @@ async function handlePhotoMessage(chatId, photo) {
     }) + '\n';
 
     session.process.stdin.write(jsonMessage);
-    console.log(`✅ [${chatId}] Foto enviada para Claude`);
+    console.log(`✅ [${chatId}] Photo sent to Claude`);
 
   } catch (error) {
-    console.error(`❌ [${chatId}] Erro ao processar foto:`, error);
-    await bot.sendMessage(chatId, `❌ Erro ao processar foto: ${error.message}`);
+    console.error(`❌ [${chatId}] Error processing photo:`, error);
+    await bot.sendMessage(chatId, t(chatId, 'errors.photoProcessing', { error: error.message }));
   }
 }
 
@@ -389,11 +390,11 @@ async function handleVoiceMessage(chatId, voice) {
   const session = sessions.get(chatId);
 
   if (!session || !session.active) {
-    await bot.sendMessage(chatId, '⚠️ Nenhuma sessão ativa. Use /start primeiro.');
+    await bot.sendMessage(chatId, t(chatId, 'errors.noSession'));
     return;
   }
 
-  console.log(`🎤 [${chatId}] Processando áudio...`);
+  console.log(`🎤 [${chatId}] Processing audio...`);
   await bot.sendChatAction(chatId, 'typing');
 
   let tempFile = null;
@@ -415,23 +416,32 @@ async function handleVoiceMessage(chatId, voice) {
     tempFile = path.join(tempDir, `voice_${Date.now()}.ogg`);
     fs.writeFileSync(tempFile, Buffer.from(buffer));
 
-    console.log(`🎤 [${chatId}] Áudio salvo (${(buffer.byteLength / 1024).toFixed(1)} KB)`);
+    console.log(`🎤 [${chatId}] Audio saved (${(buffer.byteLength / 1024).toFixed(1)} KB)`);
 
     // Se OpenAI está configurado, transcrever
     if (openai) {
-      console.log(`🎙️ [${chatId}] Transcrevendo com Whisper...`);
+      console.log(`🎙️ [${chatId}] Transcribing with Whisper...`);
+
+      // Mapear idioma do usuário para código do Whisper
+      const whisperLangMap = {
+        'en': 'en',
+        'pt': 'pt',
+        'nl': 'nl'
+      };
+      const userLang = getLanguage(chatId);
+      const whisperLang = whisperLangMap[userLang] || 'en';
 
       const transcription = await openai.audio.transcriptions.create({
         file: fs.createReadStream(tempFile),
         model: 'whisper-1',
-        language: 'pt', // Português
+        language: whisperLang,
         response_format: 'text'
       });
 
-      console.log(`✅ [${chatId}] Transcrição: "${transcription.substring(0, 100)}..."`);
+      console.log(`✅ [${chatId}] Transcription: "${transcription.substring(0, 100)}..."`);
 
       // Enviar transcrição para o usuário
-      await bot.sendMessage(chatId, `🎤 *Áudio transcrito:*\n\n"${transcription}"`, { parse_mode: 'Markdown' });
+      await bot.sendMessage(chatId, t(chatId, 'media.audioTranscribed', { transcription }), { parse_mode: 'Markdown' });
 
       // Enviar transcrição para Claude
       sendToClaudeSession(chatId, transcription);
@@ -439,17 +449,13 @@ async function handleVoiceMessage(chatId, voice) {
       // Limpar arquivo imediatamente após transcrever
       if (fs.existsSync(tempFile)) {
         fs.unlinkSync(tempFile);
-        console.log(`🗑️ [${chatId}] Áudio temporário removido`);
+        console.log(`🗑️ [${chatId}] Temporary audio removed`);
       }
 
     } else {
       // Sem OpenAI configurado
       await bot.sendMessage(chatId,
-        '🎤 *Áudio recebido!*\n\n' +
-        'ℹ️ Para habilitar transcrição automática:\n' +
-        '1. Configure `OPENAI_API_KEY` no arquivo .env\n' +
-        '2. Reinicie o bot\n\n' +
-        `Arquivo salvo em: \`${tempFile}\``,
+        t(chatId, 'media.audioReceived', { filePath: tempFile }),
         { parse_mode: 'Markdown' }
       );
 
@@ -457,20 +463,20 @@ async function handleVoiceMessage(chatId, voice) {
       setTimeout(() => {
         if (fs.existsSync(tempFile)) {
           fs.unlinkSync(tempFile);
-          console.log(`🗑️ [${chatId}] Áudio temporário removido`);
+          console.log(`🗑️ [${chatId}] Temporary audio removed`);
         }
       }, 5 * 60 * 1000);
     }
 
   } catch (error) {
-    console.error(`❌ [${chatId}] Erro ao processar áudio:`, error);
+    console.error(`❌ [${chatId}] Error processing audio:`, error);
 
     // Limpar arquivo em caso de erro
     if (tempFile && fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile);
     }
 
-    await bot.sendMessage(chatId, `❌ Erro ao processar áudio: ${error.message}`);
+    await bot.sendMessage(chatId, t(chatId, 'errors.audioProcessing', { error: error.message }));
   }
 }
 
@@ -482,11 +488,11 @@ function sendToClaudeSession(chatId, message) {
   const session = sessions.get(chatId);
 
   if (!session || !session.active) {
-    bot.sendMessage(chatId, '⚠️ Nenhuma sessão ativa. Use /start primeiro.');
+    bot.sendMessage(chatId, t(chatId, 'errors.noSession'));
     return false;
   }
 
-  console.log(`💬 [${chatId}] Enviando: "${message}"`);
+  console.log(`💬 [${chatId}] Sending: "${message}"`);
 
   // Limpar buffer de mensagens pendentes antes de enviar nova mensagem
   if (pendingMessages.has(chatId)) {
@@ -509,8 +515,8 @@ function sendToClaudeSession(chatId, message) {
     session.process.stdin.write(jsonMessage);
     return true;
   } catch (error) {
-    console.error(`❌ [${chatId}] Erro ao enviar:`, error);
-    bot.sendMessage(chatId, `❌ Erro ao enviar: ${error.message}`);
+    console.error(`❌ [${chatId}] Error sending:`, error);
+    bot.sendMessage(chatId, t(chatId, 'errors.sending', { error: error.message }));
     return false;
   }
 }
@@ -527,15 +533,15 @@ bot.on('message', async (msg) => {
 
   // Verificar autorização
   if (AUTHORIZED_CHAT_IDS.length > 0 && !AUTHORIZED_CHAT_IDS.includes(chatId.toString())) {
-    await bot.sendMessage(chatId, '❌ Acesso não autorizado.');
-    console.log(`⚠️ Acesso negado: ${chatId} (${chatType})`);
+    await bot.sendMessage(chatId, t(chatId, 'errors.unauthorized'));
+    console.log(`⚠️ Access denied: ${chatId} (${chatType})`);
     return;
   }
 
   // Log do chat ID (útil para descobrir IDs de grupos)
   if (AUTHORIZED_CHAT_IDS.length === 0) {
-    const chatName = msg.chat.title || msg.chat.username || msg.chat.first_name || 'Desconhecido';
-    console.log(`📱 Chat ID: ${chatId} | Tipo: ${chatType} | Nome: ${chatName} (configure no .env)`);
+    const chatName = msg.chat.title || msg.chat.username || msg.chat.first_name || 'Unknown';
+    console.log(`📱 Chat ID: ${chatId} | Type: ${chatType} | Name: ${chatName} (configure in .env)`);
   }
 
   // ============================
@@ -571,26 +577,21 @@ bot.on('message', async (msg) => {
     const session = createClaudeSession(chatId);
 
     const chatIcon = isGroup ? '👥' : '💬';
-    const chatTypeText = isGroup ? 'grupo (sessão compartilhada)' : 'chat privado';
+    const chatType = t(chatId, isGroup ? 'commands.chatTypeGroup' : 'commands.chatTypePrivate');
+    const whisperStatus = openai ? t(chatId, 'commands.whisperActive') : '';
+    const whisperLine = openai ? t(chatId, 'commands.whisperConfigLine') : t(chatId, 'commands.whisperMissingLine');
+    const groupWarning = isGroup ? t(chatId, 'commands.groupWarning') : '';
 
     await bot.sendMessage(chatId,
-      `🚀 *Sessão Claude Code Stream Iniciada!*\n\n` +
-      `${chatIcon} *Tipo:* ${chatTypeText}\n` +
-      `✨ *Modo Stream JSON Ativo*\n` +
-      `• Mensagens em tempo real via stream\n` +
-      `• Atualizações parciais enquanto Claude pensa\n` +
-      `• Notificações de ferramentas sendo executadas\n` +
-      `• 📸 Suporte a imagens (visão)\n` +
-      `• 🎤 Suporte a áudio/voz${openai ? ' com transcrição Whisper' : ''}\n\n` +
-      `📝 Session ID: \`${session.sessionId}\`\n` +
-      `📁 Diretório: \`${WORKING_DIR}\`\n` +
-      (openai ? `🎙️ Whisper: ✅ Ativo\n` : `🎙️ Whisper: ⚠️ Configure OPENAI_API_KEY\n`) +
-      (isGroup ? `\n⚠️ *Grupo:* Todos veem e compartilham a mesma conversa\n` : '') +
-      `\n*Comandos:*\n` +
-      `/start - Nova sessão\n` +
-      `/stop - Encerrar sessão\n` +
-      `/status - Ver status\n` +
-      `/help - Ajuda`,
+      t(chatId, 'commands.start', {
+        chatIcon,
+        chatType,
+        whisperStatus,
+        sessionId: session.sessionId,
+        directory: WORKING_DIR,
+        whisperLine,
+        groupWarning
+      }),
       { parse_mode: 'Markdown' }
     );
     return;
@@ -602,9 +603,9 @@ bot.on('message', async (msg) => {
       session.process.kill();
       sessions.delete(chatId);
       pendingMessages.delete(chatId);
-      await bot.sendMessage(chatId, '🛑 Sessão encerrada.');
+      await bot.sendMessage(chatId, t(chatId, 'session.stopped'));
     } else {
-      await bot.sendMessage(chatId, '⚠️ Nenhuma sessão ativa.');
+      await bot.sendMessage(chatId, t(chatId, 'session.noSession'));
     }
     return;
   }
@@ -614,40 +615,52 @@ bot.on('message', async (msg) => {
 
     if (session?.active) {
       await bot.sendMessage(chatId,
-        `📊 *Status*\n\n` +
-        `Sessão: 🟢 Ativa\n` +
-        `Session ID: \`${session.sessionId}\`\n` +
-        `PID: ${session.process.pid}\n` +
-        `Diretório: \`${WORKING_DIR}\``,
+        t(chatId, 'session.statusActive', {
+          sessionId: session.sessionId,
+          pid: session.process.pid,
+          directory: WORKING_DIR
+        }),
         { parse_mode: 'Markdown' }
       );
     } else {
-      await bot.sendMessage(chatId, '📊 *Status*\n\nSessão: 🔴 Inativa', { parse_mode: 'Markdown' });
+      await bot.sendMessage(chatId, t(chatId, 'session.statusInactive'), { parse_mode: 'Markdown' });
     }
     return;
   }
 
   if (text === '/help') {
+    const whisperStatus = openai ? ' (✅ active)' : ' (⚠️ configure OPENAI_API_KEY)';
     await bot.sendMessage(chatId,
-      `❓ *Como usar*\n\n` +
-      `Controle o Claude Code via Telegram com streaming em tempo real!\n\n` +
-      `*Fluxo:*\n` +
-      `1. /start - Inicia sessão stream\n` +
-      `2. Digite sua mensagem/pedido\n` +
-      `3. 📸 Envie fotos - Claude analisa com visão\n` +
-      `4. 🎤 Envie áudio - Salvo localmente\n` +
-      `5. Veja respostas em tempo real\n` +
-      `6. Responda Y/N para aprovações\n\n` +
-      `*Comandos:*\n` +
-      `/start - Iniciar nova sessão\n` +
-      `/stop - Encerrar sessão\n` +
-      `/status - Ver status\n` +
-      `/help - Esta ajuda\n\n` +
-      `*Mídia suportada:*\n` +
-      `📸 Fotos - Análise com visão do Claude\n` +
-      `🎤 Áudio/Voz - Transcrição automática via Whisper${openai ? ' (✅ ativo)' : ' (⚠️ configure OPENAI_API_KEY)'}`,
+      t(chatId, 'commands.help', { whisperStatus }),
       { parse_mode: 'Markdown' }
     );
+    return;
+  }
+
+  // ============================
+  // COMANDO /LANG - MUDAR IDIOMA
+  // ============================
+  if (text && text.startsWith('/lang')) {
+    const args = text.split(' ');
+
+    if (args.length === 1) {
+      // Mostrar idioma atual e opções
+      await bot.sendMessage(chatId,
+        t(chatId, 'language.currentLanguage') +
+        t(chatId, 'language.availableLanguages'),
+        { parse_mode: 'Markdown' }
+      );
+      return;
+    }
+
+    const newLang = args[1].toLowerCase();
+
+    if (['en', 'pt', 'nl'].includes(newLang)) {
+      setLanguage(chatId, newLang);
+      await bot.sendMessage(chatId, t(chatId, 'language.languageChanged'));
+    } else {
+      await bot.sendMessage(chatId, t(chatId, 'language.invalidLanguage'));
+    }
     return;
   }
 
@@ -667,11 +680,11 @@ bot.on('polling_error', (error) => {
 });
 
 process.on('SIGINT', () => {
-  console.log('\n🛑 Encerrando todas as sessões...');
+  console.log('\n🛑 Closing all sessions...');
 
   for (const [chatId, session] of sessions.entries()) {
     if (session.process) {
-      console.log(`🛑 Encerrando sessão ${chatId}...`);
+      console.log(`🛑 Closing session ${chatId}...`);
       session.process.kill();
     }
   }
@@ -684,14 +697,14 @@ process.on('SIGINT', () => {
 // ============================
 console.log('╔════════════════════════════════════════════╗');
 console.log('║   TELEGRAM CLAUDE CODE STREAM             ║');
-console.log('║      Streaming JSON em Tempo Real         ║');
+console.log('║      Real-Time JSON Streaming             ║');
 console.log('╚════════════════════════════════════════════╝');
-console.log(`📁 Diretório: ${WORKING_DIR}`);
+console.log(`📁 Directory: ${WORKING_DIR}`);
 console.log(`🤖 Claude CLI: ${CLAUDE_CODE_PATH}`);
 if (AUTHORIZED_CHAT_IDS.length > 0) {
-  console.log(`🔐 Autorização: Habilitada (${AUTHORIZED_CHAT_IDS.length} chat(s) autorizado(s))`);
+  console.log(`🔐 Authorization: Enabled (${AUTHORIZED_CHAT_IDS.length} authorized chat(s))`);
   AUTHORIZED_CHAT_IDS.forEach(id => console.log(`   ├─ Chat ID: ${id}`));
 } else {
-  console.log(`🔐 Autorização: Desabilitada (qualquer chat pode usar)`);
+  console.log(`🔐 Authorization: Disabled (any chat can use)`);
 }
-console.log('✅ Bot iniciado - Aguardando comandos...\n');
+console.log('✅ Bot started - Waiting for commands...\n');

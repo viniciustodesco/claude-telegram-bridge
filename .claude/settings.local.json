@@ -23,7 +23,8 @@
       "Bash(C:Usersvinicius.todescoAppDataRoamingnpmclaude.cmd --print --verbose --input-format stream-json --output-format stream-json --dangerously-skip-permissions)",
       "WebSearch",
       "Bash(if not exist .gitignore echo temp/)",
-      "Bash(.gitignore)"
+      "Bash(.gitignore)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

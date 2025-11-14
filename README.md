@@ -1,3 +1,7 @@
+[🇬🇧 English](./README.en.md) | [🇧🇷 Português](./README.md) | [🇳🇱 Nederlands](./README.nl.md)
+
+---
+
 # 🤖 Telegram Claude Code Bot
 
 Controle completo do Claude Code via Telegram com suporte a **texto**, **imagens** (visão) e **áudio** (transcrição automática)!
@@ -22,6 +26,13 @@ Controle completo do Claude Code via Telegram com suporte a **texto**, **imagens
 - 🎤 **Transcrição de áudio** - Envie mensagens de voz, transcritas automaticamente via Whisper
 - 📁 **Arquivos locais** - Claude pode ler/escrever no diretório de trabalho
 
+### 🌍 **Suporte Multilíngue**
+- 🇬🇧 **Inglês** - Idioma padrão
+- 🇧🇷 **Português** - Suporte completo
+- 🇳🇱 **Holandês** - Suporte completo
+- 🔄 **Troca de idioma** - Use `/lang` para mudar entre idiomas
+- 🎙️ **Transcrição em qualquer idioma** - Whisper detecta automaticamente o idioma selecionado
+
 ### 🔒 **Segurança**
 - 🔐 **Autenticação por Chat ID** - Apenas você pode usar o bot
 - ✅ **Aprovação de permissões** - Controle total sobre ações do Claude
@@ -31,7 +42,7 @@ Controle completo do Claude Code via Telegram com suporte a **texto**, **imagens
 - 🗣️ **Sessão compartilhada** - Use Claude Code em grupos do Telegram
 - 👥 **Colaboração** - Todos os membros podem interagir com Claude
 - 📝 **Histórico único** - Uma conversa compartilhada por grupo
-- 📖 **[Ver guia completo](GRUPOS.md)** - Instruções detalhadas de configuração
+- 📖 **[Ver guia completo](GROUPS.pt.md)** - Instruções detalhadas de configuração
 
 ---
 
@@ -84,6 +95,14 @@ CLAUDE_CODE_PATH=claude
 
 # API Key do OpenAI (para Whisper - transcrição de áudio)
 OPENAI_API_KEY=sk-proj-...sua_key_aqui...
+
+# ============================================
+# OPCIONAL - Idioma / Language
+# ============================================
+
+# Idioma padrão para novos usuários
+# Default language for new users (en, pt, ou nl)
+DEFAULT_LANGUAGE=en
 ```
 
 #### 🔑 Como obter o **Token do Bot**:
@@ -133,6 +152,31 @@ npm run dev
 | `/stop` | Encerra a sessão atual |
 | `/status` | Mostra status da sessão (PID, Session ID, etc.) |
 | `/help` | Exibe ajuda e funcionalidades |
+| `/lang` | Muda o idioma da interface (en, pt, nl) |
+| `/lang en` | Muda para Inglês |
+| `/lang pt` | Muda para Português |
+| `/lang nl` | Muda para Holandês |
+
+### 🌐 Seleção de Idioma
+
+O bot suporta **3 idiomas** para toda a interface e mensagens:
+
+**Idioma Padrão**: Inglês (English)
+
+Para **mudar de idioma**, use o comando `/lang`:
+
+```
+/lang              # Mostra idioma atual e opções disponíveis
+/lang en           # Muda para Inglês (English) 🇬🇧
+/lang pt           # Muda para Português 🇧🇷
+/lang nl           # Muda para Holandês (Nederlands) 🇳🇱
+```
+
+A escolha é imediata e confirmada na tela. Todas as mensagens do bot serão exibidas no idioma selecionado, incluindo:
+- Mensagens de status
+- Mensagens de erro
+- Feedback de processamento
+- Transcrição de áudio (no idioma selecionado)
 
 ### 💬 Interação por Texto
 

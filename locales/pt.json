@@ -1,0 +1,48 @@
+{
+  "errors": {
+    "noToken": "❌ Erro: Configure TELEGRAM_BOT_TOKEN no arquivo .env",
+    "noSession": "⚠️ Nenhuma sessão ativa. Use /start primeiro.",
+    "unauthorized": "❌ Acesso não autorizado.",
+    "photoProcessing": "❌ Erro ao processar foto: {error}",
+    "audioProcessing": "❌ Erro ao processar áudio: {error}",
+    "sending": "❌ Erro ao enviar: {error}",
+    "invalidResponse": "❌ Por favor, responda com Y (sim) ou N (não)",
+    "timeout": "❌ Timeout aguardando resposta"
+  },
+  "session": {
+    "creating": "🚀 Criando sessão stream...",
+    "created": "✅ Sessão criada! ID da sessão: {sessionId}",
+    "closed": "🔴 Sessão Claude encerrada (código: {code})",
+    "stopped": "🛑 Sessão encerrada.",
+    "noSession": "⚠️ Nenhuma sessão ativa.",
+    "statusInactive": "📊 *Status*\n\nSessão: 🔴 Inativa",
+    "statusActive": "📊 *Status*\n\nSessão: 🟢 Ativa\nSession ID: `{sessionId}`\nPID: {pid}\nDiretório: `{directory}`"
+  },
+  "commands": {
+    "start": "🚀 *Sessão Claude Code Stream Iniciada!*\n\n{chatIcon} *Tipo:* {chatType}\n✨ *Modo Stream JSON Ativo*\n• Mensagens em tempo real via stream\n• Atualizações parciais enquanto Claude pensa\n• Notificações de ferramentas sendo executadas\n• 📸 Suporte a imagens (visão)\n• 🎤 Suporte a áudio/voz{whisperStatus}\n\n📝 Session ID: `{sessionId}`\n📁 Diretório: `{directory}`\n{whisperLine}{groupWarning}\n*Comandos:*\n/start - Nova sessão\n/stop - Encerrar sessão\n/status - Ver status\n/help - Ajuda\n/lang - Mudar idioma",
+    "help": "❓ *Como usar*\n\nControle o Claude Code via Telegram com streaming em tempo real!\n\n*Fluxo:*\n1. /start - Inicia sessão stream\n2. Digite sua mensagem/pedido\n3. 📸 Envie fotos - Claude analisa com visão\n4. 🎤 Envie áudio - Salvo localmente\n5. Veja respostas em tempo real\n6. Responda Y/N para aprovações\n\n*Comandos:*\n/start - Iniciar nova sessão\n/stop - Encerrar sessão\n/status - Ver status\n/help - Esta ajuda\n/lang - Mudar idioma\n\n*Mídia suportada:*\n📸 Fotos - Análise com visão do Claude\n🎤 Áudio/Voz - Transcrição automática via Whisper{whisperStatus}",
+    "chatTypePrivate": "Chat Privado",
+    "chatTypeGroup": "Grupo (sessão compartilhada)",
+    "whisperActive": " com transcrição Whisper",
+    "whisperConfigLine": "🎙️ Whisper: ✅ Ativo\n",
+    "whisperMissingLine": "🎙️ Whisper: ⚠️ Configure OPENAI_API_KEY\n",
+    "groupWarning": "\n⚠️ *Grupo:* Todos veem e compartilham a mesma conversa\n"
+  },
+  "media": {
+    "photoProcessing": "📸 Processando foto...",
+    "photoDownloaded": "📸 Foto baixada ({size} KB, {type})",
+    "photoSent": "✅ Foto enviada para Claude",
+    "audioProcessing": "🎤 Processando áudio...",
+    "audioSaved": "🎤 Áudio salvo ({size} KB)",
+    "audioTranscribed": "🎤 *Áudio transcrito:*\n\n\"{transcription}\"",
+    "whisperTranscribing": "🎙️ Transcrevendo com Whisper...",
+    "imageQuestion": "O que você vê nesta imagem?",
+    "audioReceived": "🎤 *Áudio recebido!*\n\nℹ️ Para habilitar transcrição automática:\n1. Configure `OPENAI_API_KEY` no arquivo .env\n2. Reinicie o bot\n\nArquivo salvo em: `{filePath}`"
+  },
+  "language": {
+    "currentLanguage": "Idioma atual: Português 🇧🇷",
+    "availableLanguages": "\nIdiomas disponíveis:\n🇬🇧 /lang en - English\n🇧🇷 /lang pt - Português\n🇳🇱 /lang nl - Nederlands",
+    "languageChanged": "✅ Idioma alterado para Português!",
+    "invalidLanguage": "❌ Idioma inválido. Use: /lang en, /lang pt, ou /lang nl"
+  }
+}
