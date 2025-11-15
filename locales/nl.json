@@ -1,0 +1,48 @@
+{
+  "errors": {
+    "noToken": "❌ Fout: Configureer TELEGRAM_BOT_TOKEN in .env bestand",
+    "noSession": "⚠️ Geen actieve sessie. Gebruik eerst /start.",
+    "unauthorized": "❌ Ongeautoriseerde toegang.",
+    "photoProcessing": "❌ Fout bij verwerken foto: {error}",
+    "audioProcessing": "❌ Fout bij verwerken audio: {error}",
+    "sending": "❌ Fout bij verzenden: {error}",
+    "invalidResponse": "❌ Antwoord alstublieft met Y (ja) of N (nee)",
+    "timeout": "❌ Time-out bij wachten op antwoord"
+  },
+  "session": {
+    "creating": "🚀 Stream-sessie aanmaken...",
+    "created": "✅ Sessie aangemaakt! Sessie-ID: {sessionId}",
+    "closed": "🔴 Claude-sessie gesloten (code: {code})",
+    "stopped": "🛑 Sessie gestopt.",
+    "noSession": "⚠️ Geen actieve sessie.",
+    "statusInactive": "📊 *Status*\n\nSessie: 🔴 Inactief",
+    "statusActive": "📊 *Status*\n\nSessie: 🟢 Actief\nSessie-ID: `{sessionId}`\nPID: {pid}\nMap: `{directory}`"
+  },
+  "commands": {
+    "start": "🚀 *Claude Code Stream-sessie Gestart!*\n\n{chatIcon} *Type:* {chatType}\n✨ *Stream JSON-modus Actief*\n• Real-time berichten via stream\n• Gedeeltelijke updates terwijl Claude denkt\n• Meldingen voor uitgevoerde tools\n• 📸 Afbeeldingsondersteuning (visie)\n• 🎤 Audio/spraakondersteuning{whisperStatus}\n\n📝 Sessie-ID: `{sessionId}`\n📁 Map: `{directory}`\n{whisperLine}{groupWarning}\n*Commando's:*\n/start - Nieuwe sessie\n/stop - Stop sessie\n/status - Bekijk status\n/help - Help\n/lang - Verander taal",
+    "help": "❓ *Hoe te gebruiken*\n\nBestuur Claude Code via Telegram met real-time streaming!\n\n*Werkwijze:*\n1. /start - Start stream-sessie\n2. Typ je bericht/verzoek\n3. 📸 Stuur foto's - Claude analyseert met visie\n4. 🎤 Stuur audio - Lokaal opgeslagen\n5. Zie real-time reacties\n6. Antwoord Y/N voor goedkeuringen\n\n*Commando's:*\n/start - Start nieuwe sessie\n/stop - Stop sessie\n/status - Bekijk status\n/help - Deze help\n/lang - Verander taal\n\n*Ondersteunde media:*\n📸 Foto's - Analyse met Claude visie\n🎤 Audio/Spraak - Automatische transcriptie via Whisper{whisperStatus}",
+    "chatTypePrivate": "Privéchat",
+    "chatTypeGroup": "Groep (gedeelde sessie)",
+    "whisperActive": " met Whisper-transcriptie",
+    "whisperConfigLine": "🎙️ Whisper: ✅ Actief\n",
+    "whisperMissingLine": "🎙️ Whisper: ⚠️ Configureer OPENAI_API_KEY\n",
+    "groupWarning": "\n⚠️ *Groep:* Iedereen ziet en deelt hetzelfde gesprek\n"
+  },
+  "media": {
+    "photoProcessing": "📸 Foto verwerken...",
+    "photoDownloaded": "📸 Foto gedownload ({size} KB, {type})",
+    "photoSent": "✅ Foto verzonden naar Claude",
+    "audioProcessing": "🎤 Audio verwerken...",
+    "audioSaved": "🎤 Audio opgeslagen ({size} KB)",
+    "audioTranscribed": "🎤 *Audio getranscribeerd:*\n\n\"{transcription}\"",
+    "whisperTranscribing": "🎙️ Transcriberen met Whisper...",
+    "imageQuestion": "Wat zie je in deze afbeelding?",
+    "audioReceived": "🎤 *Audio ontvangen!*\n\nℹ️ Om automatische transcriptie in te schakelen:\n1. Configureer `OPENAI_API_KEY` in .env bestand\n2. Herstart de bot\n\nBestand opgeslagen op: `{filePath}`"
+  },
+  "language": {
+    "currentLanguage": "Huidige taal: Nederlands 🇳🇱",
+    "availableLanguages": "\nBeschikbare talen:\n🇬🇧 /lang en - English\n🇧🇷 /lang pt - Português\n🇳🇱 /lang nl - Nederlands",
+    "languageChanged": "✅ Taal veranderd naar Nederlands!",
+    "invalidLanguage": "❌ Ongeldige taal. Gebruik: /lang en, /lang pt, of /lang nl"
+  }
+}

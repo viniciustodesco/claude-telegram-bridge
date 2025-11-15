@@ -1,0 +1,48 @@
+{
+  "errors": {
+    "noToken": "❌ Error: Configure TELEGRAM_BOT_TOKEN in .env file",
+    "noSession": "⚠️ No active session. Use /start first.",
+    "unauthorized": "❌ Unauthorized access.",
+    "photoProcessing": "❌ Error processing photo: {error}",
+    "audioProcessing": "❌ Error processing audio: {error}",
+    "sending": "❌ Error sending: {error}",
+    "invalidResponse": "❌ Please respond with Y (yes) or N (no)",
+    "timeout": "❌ Timeout waiting for response"
+  },
+  "session": {
+    "creating": "🚀 Creating stream session...",
+    "created": "✅ Session created! Session ID: {sessionId}",
+    "closed": "🔴 Claude session closed (code: {code})",
+    "stopped": "🛑 Session stopped.",
+    "noSession": "⚠️ No active session.",
+    "statusInactive": "📊 *Status*\n\nSession: 🔴 Inactive",
+    "statusActive": "📊 *Status*\n\nSession: 🟢 Active\nSession ID: `{sessionId}`\nPID: {pid}\nDirectory: `{directory}`"
+  },
+  "commands": {
+    "start": "🚀 *Claude Code Stream Session Started!*\n\n{chatIcon} *Type:* {chatType}\n✨ *Stream JSON Mode Active*\n• Real-time messages via stream\n• Partial updates while Claude thinks\n• Tool execution notifications\n• 📸 Image support (vision)\n• 🎤 Audio/voice support{whisperStatus}\n\n📝 Session ID: `{sessionId}`\n📁 Directory: `{directory}`\n{whisperLine}{groupWarning}\n*Commands:*\n/start - New session\n/stop - Stop session\n/status - View status\n/help - Help\n/lang - Change language",
+    "help": "❓ *How to use*\n\nControl Claude Code via Telegram with real-time streaming!\n\n*Workflow:*\n1. /start - Start stream session\n2. Type your message/request\n3. 📸 Send photos - Claude analyzes with vision\n4. 🎤 Send audio - Saved locally\n5. See real-time responses\n6. Answer Y/N for approvals\n\n*Commands:*\n/start - Start new session\n/stop - Stop session\n/status - View status\n/help - This help\n/lang - Change language\n\n*Supported media:*\n📸 Photos - Analysis with Claude vision\n🎤 Audio/Voice - Automatic transcription via Whisper{whisperStatus}",
+    "chatTypePrivate": "Private Chat",
+    "chatTypeGroup": "Group (shared session)",
+    "whisperActive": " with Whisper transcription",
+    "whisperConfigLine": "🎙️ Whisper: ✅ Active\n",
+    "whisperMissingLine": "🎙️ Whisper: ⚠️ Configure OPENAI_API_KEY\n",
+    "groupWarning": "\n⚠️ *Group:* Everyone sees and shares the same conversation\n"
+  },
+  "media": {
+    "photoProcessing": "📸 Processing photo...",
+    "photoDownloaded": "📸 Photo downloaded ({size} KB, {type})",
+    "photoSent": "✅ Photo sent to Claude",
+    "audioProcessing": "🎤 Processing audio...",
+    "audioSaved": "🎤 Audio saved ({size} KB)",
+    "audioTranscribed": "🎤 *Audio transcribed:*\n\n\"{transcription}\"",
+    "whisperTranscribing": "🎙️ Transcribing with Whisper...",
+    "imageQuestion": "What do you see in this image?",
+    "audioReceived": "🎤 *Audio received!*\n\nℹ️ To enable automatic transcription:\n1. Configure `OPENAI_API_KEY` in .env file\n2. Restart the bot\n\nFile saved at: `{filePath}`"
+  },
+  "language": {
+    "currentLanguage": "Current language: English 🇬🇧",
+    "availableLanguages": "\nAvailable languages:\n🇬🇧 /lang en - English\n🇧🇷 /lang pt - Português\n🇳🇱 /lang nl - Nederlands",
+    "languageChanged": "✅ Language changed to English!",
+    "invalidLanguage": "❌ Invalid language. Use: /lang en, /lang pt, or /lang nl"
+  }
+}

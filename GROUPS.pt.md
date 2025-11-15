@@ -1,3 +1,7 @@
+[🇬🇧 English](./GROUPS.en.md) | [🇧🇷 Português](./GROUPS.pt.md) | [🇳🇱 Nederlands](./GROUPS.nl.md)
+
+---
+
 # 👥 Usando o Bot em Grupos do Telegram
 
 ## Como Funciona em Grupos
